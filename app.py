@@ -45,7 +45,7 @@ def save_screenshots(data):
 
 @app.route('/')
 def dashboard():
-    return render_template('dashboard.html')
+    return render_template('index.html')
 
 @app.route('/api/screenshots', methods=['GET'])
 def get_screenshots():
