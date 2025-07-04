@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screenshot Gallery</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">Screenshot Gallery</div>
+            <button class="btn btn--primary" id="uploadBtn">+ Add Screenshot</button>
+        </header>
+
+        <div class="sort-options">
+            <button class="sort-btn active" data-sort="recent">Most Recent</button>
+            <button class="sort-btn" data-sort="likes">Most Liked</button>
+            <button class="sort-btn" data-sort="oldest">Oldest</button>
+        </div>
+
+        <div class="gallery" id="gallery">
+            <div class="empty-state" id="emptyState">
+                <div class="empty-state__icon">📷</div>
+                <h3 class="empty-state__title">No screenshots yet</h3>
+                <p class="empty-state__message">Add your first screenshot by clicking the button above</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div class="modal" id="uploadModal">
+        <div class="modal__content">
+            <div class="modal__header">
+                <h2 class="modal__title">Add New Screenshot</h2>
+                <button class="modal__close" id="closeModal">&times;</button>
+            </div>
+            <form id="uploadForm" class="form" enctype="multipart/form-data">
+                <div class="form__group">
+                    <label for="screenshotTitle" class="form__label">Title</label>
+                    <input type="text" id="screenshotTitle" name="title" class="form__control" placeholder="Enter a title" required>
+                </div>
+                <div class="form__group">
+                    <label for="screenshotUrl" class="form__label">URL</label>
+                    <input type="url" id="screenshotUrl" name="url" class="form__control" placeholder="https://example.com">
+                </div>
+                <div class="form__group">
+                    <label for="screenshotImage" class="form__label">Screenshot Image</label>
+                    <input type="file" id="screenshotImage" name="image" class="form__control" accept="image/*" required>
+                </div>
+                <div class="form__group">
+                    <label for="screenshotNotes" class="form__label">Notes (Optional)</label>
+                    <textarea id="screenshotNotes" name="notes" class="form__control form__textarea" placeholder="Add any notes about this screenshot"></textarea>
+                </div>
+                <button type="submit" class="btn btn--primary">Save Screenshot</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const uploadBtn = document.getElementById('uploadBtn');
+            const uploadModal = document.getElementById('uploadModal');
+            const closeModal = document.getElementById('closeModal');
+            const uploadForm = document.getElementById('uploadForm');
+            const gallery = document.getElementById('gallery');
+            const emptyState = document.getElementById('emptyState');
+            const sortButtons = document.querySelectorAll('.sort-btn');
+            
+            let currentSort = 'recent';
+            
+            // Initialize the gallery
+            fetchScreenshots();
+            
+            // Event Listeners
+            uploadBtn.addEventListener('click', () => {
+                uploadModal.style.display = 'grid';
+                document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+            });
+            
+            closeModal.addEventListener('click', () => {
+                uploadModal.style.display = 'none';
+                document.body.style.overflow = ''; // Re-enable scrolling
+            });
+            
+            uploadModal.addEventListener('click', (e) => {
+                if (e.target === uploadModal) {
+                    uploadModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            uploadForm.addEventListener('submit', handleFormSubmit);
+            
+            sortButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    sortButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    currentSort = button.dataset.sort;
+                    fetchScreenshots();
+                });
+            });
+            
+            // Functions
+            async function fetchScreenshots() {
+                try {
+                    showLoadingState();
+                    const response = await fetch(`/api/screenshots?sort=${currentSort}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const screenshots = await response.json();
+                    renderGallery(screenshots);
+                } catch (error) {
+                    console.error('Error fetching screenshots:', error);
+                    showErrorState();
+                }
+            }
+            
+            async function handleFormSubmit(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(uploadForm);
+                const submitBtn = uploadForm.querySelector('button[type="submit"]');
+                
+                try {
+                    // Disable button during submission
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Uploading...';
+                    
+                    const response = await fetch('/api/screenshots', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    uploadForm.reset();
+                    uploadModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                    await fetchScreenshots();
+                    
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    alert('Failed to upload screenshot. Please try again.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Save Screenshot';
+                }
+            }
+            
+            async function toggleLike(id, liked) {
+                try {
+                    const likeBtn = document.querySelector(`.card[data-id="${id}"] [data-action="like"]`);
+                    likeBtn.disabled = true;
+                    
+                    await fetch(`/api/screenshots/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ liked: !liked })
+                    });
+                    
+                    await fetchScreenshots();
+                } catch (error) {
+                    console.error('Error toggling like:', error);
+                }
+            }
+            
+            async function toggleSave(id, saved) {
+                try {
+                    const saveBtn = document.querySelector(`.card[data-id="${id}"] [data-action="save"]`);
+                    saveBtn.disabled = true;
+                    
+                    await fetch(`/api/screenshots/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ saved: !saved })
+                    });
+                    
+                    await fetchScreenshots();
+                } catch (error) {
+                    console.error('Error toggling save:', error);
+                }
+            }
+            
+            function renderGallery(screenshots = []) {
+                gallery.innerHTML = '';
+                
+                if (screenshots.length === 0) {
+                    gallery.appendChild(emptyState);
+                    emptyState.style.display = 'flex';
+                    return;
+                }
+                
+                emptyState.style.display = 'none';
+                
+                screenshots.forEach(screenshot => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.dataset.id = screenshot.id;
+                    
+                    card.innerHTML = `
+                        <img src="${screenshot.image}" alt="${screenshot.title}" class="card__img" loading="lazy">
+                        <div class="card__body">
+                            <h3 class="card__title">${screenshot.title}</h3>
+                            ${screenshot.url ? `<a href="${screenshot.url}" target="_blank" rel="noopener noreferrer" class="card__link">${truncateUrl(screenshot.url)}</a>` : ''}
+                            ${screenshot.notes ? `<p class="card__notes">${screenshot.notes}</p>` : ''}
+                            <div class="card__actions">
+                                <button class="action-btn action-btn--like ${screenshot.liked ? 'active' : ''}" data-action="like" aria-label="${screenshot.liked ? 'Unlike' : 'Like'}">
+                                    <span class="icon">👍</span> ${screenshot.likes}
+                                </button>
+                                <button class="action-btn action-btn--save ${screenshot.saved ? 'active' : ''}" data-action="save" aria-label="${screenshot.saved ? 'Unsave' : 'Save'}">
+                                    <span class="icon">🔖</span> Save
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    card.querySelector('[data-action="like"]').addEventListener('click', 
+                        () => toggleLike(screenshot.id, screenshot.liked));
+                    
+                    card.querySelector('[data-action="save"]').addEventListener('click', 
+                        () => toggleSave(screenshot.id, screenshot.saved));
+                    
+                    gallery.appendChild(card);
+                });
+            }
+            
+            function showLoadingState() {
+                gallery.innerHTML = '<div class="empty-state"><div class="empty-state__icon">⏳</div><h3 class="empty-state__title">Loading...</h3></div>';
+            }
+            
+            function showErrorState() {
+                gallery.innerHTML = '<div class="empty-state"><div class="empty-state__icon">❌</div><h3 class="empty-state__title">Error loading screenshots</h3><p class="empty-state__message">Please try again later</p></div>';
+            }
+            
+            function truncateUrl(url, maxLength = 30) {
+                if (!url) return '';
+                if (url.length <= maxLength) return url;
+                return url.substring(0, maxLength) + '...';
+            }
+        });
+    </script>
+</body>
+</html>
