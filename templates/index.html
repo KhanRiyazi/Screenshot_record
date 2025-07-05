@@ -3,28 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Screenshot Gallery</title>
+    <meta name="description" content="YouTube SEO Screenshot Gallery - Track and optimize your YouTube content performance">
+    <title>YouTube SEO Screenshot Gallery</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
     <div class="container">
         <header class="header">
-            <div class="logo">Screenshot Gallery</div>
-            <button class="btn btn--primary" id="uploadBtn">+ Add Screenshot</button>
+            <div class="logo">
+                <i class="fab fa-youtube" style="color: #ff0000; margin-right: 10px;"></i>
+                YouTube SEO Gallery
+            </div>
+            <button class="btn btn--primary" id="uploadBtn">
+                <i class="fas fa-plus"></i> Add Screenshot
+            </button>
         </header>
 
         <div class="sort-options">
-            <button class="sort-btn active" data-sort="recent">Most Recent</button>
-            <button class="sort-btn" data-sort="likes">Most Liked</button>
-            <button class="sort-btn" data-sort="oldest">Oldest</button>
+            <button class="sort-btn active" data-sort="recent">
+                <i class="fas fa-clock"></i> Recent
+            </button>
+            <button class="sort-btn" data-sort="likes">
+                <i class="fas fa-heart"></i> Most Liked
+            </button>
+            <button class="sort-btn" data-sort="seo_score">
+                <i class="fas fa-chart-line"></i> SEO Score
+            </button>
+            <button class="sort-btn" data-sort="views">
+                <i class="fas fa-eye"></i> Views
+            </button>
+            <button class="sort-btn" data-sort="engagement">
+                <i class="fas fa-users"></i> Engagement
+            </button>
+            <button class="sort-btn" data-sort="oldest">
+                <i class="fas fa-history"></i> Oldest
+            </button>
         </div>
 
         <div class="gallery" id="gallery">
             <div class="empty-state" id="emptyState">
-                <div class="empty-state__icon">📷</div>
-                <h3 class="empty-state__title">No screenshots yet</h3>
-                <p class="empty-state__message">Add your first screenshot by clicking the button above</p>
+                <div class="empty-state__icon"><i class="fab fa-youtube"></i></div>
+                <h3 class="empty-state__title">No YouTube screenshots yet</h3>
+                <p class="empty-state__message">Add your first YouTube screenshot to analyze SEO performance</p>
             </div>
         </div>
     </div>
@@ -33,28 +55,51 @@
     <div class="modal" id="uploadModal">
         <div class="modal__content">
             <div class="modal__header">
-                <h2 class="modal__title">Add New Screenshot</h2>
+                <h2 class="modal__title"><i class="fab fa-youtube"></i> Add YouTube Screenshot</h2>
                 <button class="modal__close" id="closeModal">&times;</button>
             </div>
             <form id="uploadForm" class="form" enctype="multipart/form-data">
                 <div class="form__group">
-                    <label for="screenshotTitle" class="form__label">Title</label>
-                    <input type="text" id="screenshotTitle" name="title" class="form__control" placeholder="Enter a title" required>
+                    <label for="screenshotTitle" class="form__label">Video Title</label>
+                    <input type="text" id="screenshotTitle" name="title" class="form__control" placeholder="Enter YouTube video title" required>
                 </div>
                 <div class="form__group">
-                    <label for="screenshotUrl" class="form__label">URL</label>
-                    <input type="url" id="screenshotUrl" name="url" class="form__control" placeholder="https://example.com">
+                    <label for="screenshotUrl" class="form__label">YouTube URL</label>
+                    <input type="url" id="screenshotUrl" name="url" class="form__control" placeholder="https://www.youtube.com/watch?v=..." required>
+                    <small class="form__help">Paste the full YouTube video URL</small>
                 </div>
                 <div class="form__group">
-                    <label for="screenshotImage" class="form__label">Screenshot Image</label>
+                    <label for="screenshotImage" class="form__label">Thumbnail/Screenshot</label>
                     <input type="file" id="screenshotImage" name="image" class="form__control" accept="image/*" required>
+                    <small class="form__help">Upload a screenshot or thumbnail of the video</small>
                 </div>
                 <div class="form__group">
-                    <label for="screenshotNotes" class="form__label">Notes (Optional)</label>
-                    <textarea id="screenshotNotes" name="notes" class="form__control form__textarea" placeholder="Add any notes about this screenshot"></textarea>
+                    <label for="screenshotNotes" class="form__label">SEO Notes</label>
+                    <textarea id="screenshotNotes" name="notes" class="form__control form__textarea" placeholder="Add SEO notes, keywords, or description"></textarea>
+                    <small class="form__help">Include target keywords and optimization notes</small>
                 </div>
-                <button type="submit" class="btn btn--primary">Save Screenshot</button>
+                <button type="submit" class="btn btn--primary">
+                    <i class="fas fa-chart-line"></i> Analyze SEO
+                </button>
             </form>
+        </div>
+    </div>
+
+    <!-- SEO Details Modal -->
+    <div class="modal" id="seoModal">
+        <div class="modal__content modal__content--large">
+            <div class="modal__header">
+                <h2 class="modal__title"><i class="fas fa-chart-line"></i> SEO Analysis</h2>
+                <button class="modal__close" id="closeSeoModal">&times;</button>
+            </div>
+            <div class="seo-details" id="seoDetails">
+                <!-- Filled dynamically by JavaScript -->
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--secondary" id="refreshSeoBtn">
+                    <i class="fas fa-sync-alt"></i> Refresh SEO Data
+                </button>
+            </div>
         </div>
     </div>
 
@@ -68,8 +113,13 @@
             const gallery = document.getElementById('gallery');
             const emptyState = document.getElementById('emptyState');
             const sortButtons = document.querySelectorAll('.sort-btn');
+            const seoModal = document.getElementById('seoModal');
+            const closeSeoModal = document.getElementById('closeSeoModal');
+            const seoDetails = document.getElementById('seoDetails');
+            const refreshSeoBtn = document.getElementById('refreshSeoBtn');
             
             let currentSort = 'recent';
+            let currentScreenshotId = null;
             
             // Initialize the gallery
             fetchScreenshots();
@@ -77,17 +127,29 @@
             // Event Listeners
             uploadBtn.addEventListener('click', () => {
                 uploadModal.style.display = 'grid';
-                document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+                document.body.style.overflow = 'hidden';
             });
             
             closeModal.addEventListener('click', () => {
                 uploadModal.style.display = 'none';
-                document.body.style.overflow = ''; // Re-enable scrolling
+                document.body.style.overflow = '';
+            });
+            
+            closeSeoModal.addEventListener('click', () => {
+                seoModal.style.display = 'none';
+                document.body.style.overflow = '';
             });
             
             uploadModal.addEventListener('click', (e) => {
                 if (e.target === uploadModal) {
                     uploadModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            });
+            
+            seoModal.addEventListener('click', (e) => {
+                if (e.target === seoModal) {
+                    seoModal.style.display = 'none';
                     document.body.style.overflow = '';
                 }
             });
@@ -102,6 +164,8 @@
                     fetchScreenshots();
                 });
             });
+            
+            refreshSeoBtn.addEventListener('click', refreshSeoData);
             
             // Functions
             async function fetchScreenshots() {
@@ -128,9 +192,8 @@
                 const submitBtn = uploadForm.querySelector('button[type="submit"]');
                 
                 try {
-                    // Disable button during submission
                     submitBtn.disabled = true;
-                    submitBtn.textContent = 'Uploading...';
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
                     
                     const response = await fetch('/api/screenshots', {
                         method: 'POST',
@@ -151,7 +214,7 @@
                     alert('Failed to upload screenshot. Please try again.');
                 } finally {
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'Save Screenshot';
+                    submitBtn.innerHTML = '<i class="fas fa-chart-line"></i> Analyze SEO';
                 }
             }
             
@@ -159,6 +222,7 @@
                 try {
                     const likeBtn = document.querySelector(`.card[data-id="${id}"] [data-action="like"]`);
                     likeBtn.disabled = true;
+                    likeBtn.innerHTML = `<span class="icon"><i class="fas fa-spinner fa-spin"></i></span>`;
                     
                     await fetch(`/api/screenshots/${id}`, {
                         method: 'PUT',
@@ -178,6 +242,7 @@
                 try {
                     const saveBtn = document.querySelector(`.card[data-id="${id}"] [data-action="save"]`);
                     saveBtn.disabled = true;
+                    saveBtn.innerHTML = `<span class="icon"><i class="fas fa-spinner fa-spin"></i></span>`;
                     
                     await fetch(`/api/screenshots/${id}`, {
                         method: 'PUT',
@@ -190,6 +255,60 @@
                     await fetchScreenshots();
                 } catch (error) {
                     console.error('Error toggling save:', error);
+                }
+            }
+            
+            async function showSeoDetails(id) {
+                try {
+                    showSeoLoadingState();
+                    currentScreenshotId = id;
+                    
+                    const response = await fetch(`/api/screenshots/${id}/seo`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const seoData = await response.json();
+                    renderSeoDetails(seoData);
+                    
+                    seoModal.style.display = 'grid';
+                    document.body.style.overflow = 'hidden';
+                } catch (error) {
+                    console.error('Error fetching SEO details:', error);
+                    seoDetails.innerHTML = `
+                        <div class="seo-error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Error loading SEO data</h3>
+                            <p>Please try again later</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            async function refreshSeoData() {
+                if (!currentScreenshotId) return;
+                
+                try {
+                    refreshSeoBtn.disabled = true;
+                    refreshSeoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+                    
+                    const response = await fetch(`/api/screenshots/${currentScreenshotId}/refresh-seo`, {
+                        method: 'POST'
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const seoData = await response.json();
+                    renderSeoDetails(seoData);
+                    await fetchScreenshots(); // Refresh the gallery to show updated data
+                } catch (error) {
+                    console.error('Error refreshing SEO data:', error);
+                    alert('Failed to refresh SEO data. Please try again.');
+                } finally {
+                    refreshSeoBtn.disabled = false;
+                    refreshSeoBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh SEO Data';
                 }
             }
             
@@ -209,18 +328,41 @@
                     card.className = 'card';
                     card.dataset.id = screenshot.id;
                     
+                    // SEO score indicator
+                    const seoScore = screenshot.seo_data?.score || 0;
+                    const seoScoreClass = seoScore >= 80 ? 'high' : 
+                                        seoScore >= 50 ? 'medium' : 'low';
+                    
                     card.innerHTML = `
-                        <img src="${screenshot.image}" alt="${screenshot.title}" class="card__img" loading="lazy">
+                        <div class="card__header">
+                            <div class="seo-score ${seoScoreClass}" title="SEO Score">
+                                ${seoScore}
+                            </div>
+                            <img src="${screenshot.image}" alt="${screenshot.title}" class="card__img" loading="lazy">
+                        </div>
                         <div class="card__body">
                             <h3 class="card__title">${screenshot.title}</h3>
-                            ${screenshot.url ? `<a href="${screenshot.url}" target="_blank" rel="noopener noreferrer" class="card__link">${truncateUrl(screenshot.url)}</a>` : ''}
+                            ${screenshot.url ? `<a href="${screenshot.url}" target="_blank" rel="noopener noreferrer" class="card__link">
+                                <i class="fab fa-youtube"></i> ${truncateUrl(screenshot.url)}
+                            </a>` : ''}
                             ${screenshot.notes ? `<p class="card__notes">${screenshot.notes}</p>` : ''}
+                            <div class="card__stats">
+                                <div class="stat">
+                                    <i class="fas fa-eye"></i> ${formatNumber(screenshot.seo_data?.views || 0)}
+                                </div>
+                                <div class="stat">
+                                    <i class="fas fa-users"></i> ${(screenshot.seo_data?.engagement_rate || 0).toFixed(1)}%
+                                </div>
+                            </div>
                             <div class="card__actions">
                                 <button class="action-btn action-btn--like ${screenshot.liked ? 'active' : ''}" data-action="like" aria-label="${screenshot.liked ? 'Unlike' : 'Like'}">
-                                    <span class="icon">👍</span> ${screenshot.likes}
+                                    <span class="icon"><i class="fas fa-heart"></i></span> ${screenshot.likes}
                                 </button>
                                 <button class="action-btn action-btn--save ${screenshot.saved ? 'active' : ''}" data-action="save" aria-label="${screenshot.saved ? 'Unsave' : 'Save'}">
-                                    <span class="icon">🔖</span> Save
+                                    <span class="icon"><i class="fas fa-bookmark"></i></span>
+                                </button>
+                                <button class="action-btn action-btn--seo" data-action="seo" aria-label="View SEO Details">
+                                    <span class="icon"><i class="fas fa-chart-line"></i></span> SEO
                                 </button>
                             </div>
                         </div>
@@ -232,22 +374,148 @@
                     card.querySelector('[data-action="save"]').addEventListener('click', 
                         () => toggleSave(screenshot.id, screenshot.saved));
                     
+                    card.querySelector('[data-action="seo"]').addEventListener('click', 
+                        () => showSeoDetails(screenshot.id));
+                    
                     gallery.appendChild(card);
                 });
             }
             
+            function renderSeoDetails(seoData) {
+                const lastUpdated = seoData.last_analyzed ? 
+                    new Date(seoData.last_analyzed).toLocaleString() : 'Never';
+                
+                // Create keyword tags
+                const keywordTags = seoData.keywords?.map(keyword => 
+                    `<span class="keyword-tag">${keyword}</span>`
+                ).join('') || 'No keywords extracted';
+                
+                // Create suggested keywords
+                const suggestedKeywords = seoData.suggested_keywords?.map(keyword => 
+                    `<li>${keyword}</li>`
+                ).join('') || '<li>No suggestions available</li>';
+                
+                // Create video tags
+                const videoTags = seoData.tags?.map(tag => 
+                    `<span class="tag-tag">${tag}</span>`
+                ).join('') || 'No tags available';
+                
+                seoDetails.innerHTML = `
+                    <div class="seo-summary">
+                        <div class="seo-metric">
+                            <div class="metric-value ${getScoreClass(seoData.score)}">${seoData.score}</div>
+                            <div class="metric-label">SEO Score</div>
+                        </div>
+                        <div class="seo-metric">
+                            <div class="metric-value">${formatNumber(seoData.views)}</div>
+                            <div class="metric-label">Views</div>
+                        </div>
+                        <div class="seo-metric">
+                            <div class="metric-value">${seoData.engagement_rate.toFixed(1)}%</div>
+                            <div class="metric-label">Engagement</div>
+                        </div>
+                        <div class="seo-metric">
+                            <div class="metric-value">${lastUpdated}</div>
+                            <div class="metric-label">Last Analyzed</div>
+                        </div>
+                    </div>
+                    
+                    <div class="seo-section">
+                        <h3><i class="fas fa-key"></i> Keywords</h3>
+                        <div class="keywords-container">
+                            ${keywordTags}
+                        </div>
+                    </div>
+                    
+                    <div class="seo-section">
+                        <h3><i class="fas fa-lightbulb"></i> Suggested Keywords</h3>
+                        <ul class="suggested-keywords">
+                            ${suggestedKeywords}
+                        </ul>
+                    </div>
+                    
+                    <div class="seo-section">
+                        <h3><i class="fas fa-tags"></i> Video Tags</h3>
+                        <div class="tags-container">
+                            ${videoTags}
+                        </div>
+                    </div>
+                    
+                    <div class="seo-section">
+                        <h3><i class="fas fa-info-circle"></i> SEO Recommendations</h3>
+                        ${generateSeoRecommendations(seoData)}
+                    </div>
+                `;
+            }
+            
+            function generateSeoRecommendations(seoData) {
+                let recommendations = [];
+                
+                if (seoData.score < 50) {
+                    recommendations.push('Your SEO score is low. Consider improving your title, description, and tags.');
+                }
+                
+                if (seoData.keywords?.length < 5) {
+                    recommendations.push('Add more relevant keywords to your video metadata.');
+                }
+                
+                if (seoData.engagement_rate < 2) {
+                    recommendations.push('Engagement rate is low. Try adding calls-to-action in your video.');
+                }
+                
+                if (seoData.tags?.length < 10) {
+                    recommendations.push('Add more tags to help YouTube understand your content.');
+                }
+                
+                if (recommendations.length === 0) {
+                    return '<p>Your SEO looks good! Keep up the good work.</p>';
+                }
+                
+                return '<ul>' + recommendations.map(rec => `<li>${rec}</li>`).join('') + '</ul>';
+            }
+            
             function showLoadingState() {
-                gallery.innerHTML = '<div class="empty-state"><div class="empty-state__icon">⏳</div><h3 class="empty-state__title">Loading...</h3></div>';
+                gallery.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state__icon"><i class="fas fa-spinner fa-spin"></i></div>
+                        <h3 class="empty-state__title">Loading YouTube data...</h3>
+                    </div>
+                `;
             }
             
             function showErrorState() {
-                gallery.innerHTML = '<div class="empty-state"><div class="empty-state__icon">❌</div><h3 class="empty-state__title">Error loading screenshots</h3><p class="empty-state__message">Please try again later</p></div>';
+                gallery.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state__icon"><i class="fas fa-exclamation-triangle"></i></div>
+                        <h3 class="empty-state__title">Error loading data</h3>
+                        <p class="empty-state__message">Please check your connection and try again</p>
+                    </div>
+                `;
+            }
+            
+            function showSeoLoadingState() {
+                seoDetails.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state__icon"><i class="fas fa-spinner fa-spin"></i></div>
+                        <h3 class="empty-state__title">Analyzing SEO data...</h3>
+                    </div>
+                `;
             }
             
             function truncateUrl(url, maxLength = 30) {
                 if (!url) return '';
                 if (url.length <= maxLength) return url;
                 return url.substring(0, maxLength) + '...';
+            }
+            
+            function formatNumber(num) {
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+            
+            function getScoreClass(score) {
+                if (score >= 80) return 'high';
+                if (score >= 50) return 'medium';
+                return 'low';
             }
         });
     </script>

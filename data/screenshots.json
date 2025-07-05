@@ -8,7 +8,30 @@
     "likes": 0,
     "liked": false,
     "saved": true,
-    "created_at": "2025-07-04T12:07:21.779312"
+    "created_at": "2025-07-04T12:07:21.779312",
+    "seo_data": {
+      "keywords": [
+        "hello",
+        "world",
+        "problems",
+        "are",
+        "opportunity"
+      ],
+      "score": 14,
+      "last_analyzed": "2025-07-05T06:32:42.084107+00:00",
+      "views": 0,
+      "engagement_rate": 0,
+      "ctr": 0,
+      "impressions": 0,
+      "tags": [],
+      "suggested_keywords": [
+        "hello tutorial",
+        "best hello",
+        "hello tips",
+        "world tutorial",
+        "best world"
+      ]
+    }
   },
   {
     "id": "1751611111.570291",
@@ -19,7 +42,28 @@
     "likes": 0,
     "liked": false,
     "saved": true,
-    "created_at": "2025-07-04T12:08:31.570291"
+    "created_at": "2025-07-04T12:08:31.570291",
+    "seo_data": {
+      "keywords": [
+        "hello",
+        "world",
+        "hello"
+      ],
+      "score": 19,
+      "last_analyzed": "2025-07-05T06:32:42.084107+00:00",
+      "views": 0,
+      "engagement_rate": 0,
+      "ctr": 0,
+      "impressions": 0,
+      "tags": [],
+      "suggested_keywords": [
+        "hello tutorial",
+        "best hello",
+        "hello tips",
+        "world tutorial",
+        "best world"
+      ]
+    }
   },
   {
     "id": "1751611302.51497",
@@ -30,7 +74,28 @@
     "likes": 0,
     "liked": false,
     "saved": false,
-    "created_at": "2025-07-04T12:11:42.514970"
+    "created_at": "2025-07-04T12:11:42.514970",
+    "seo_data": {
+      "keywords": [
+        "youtube",
+        "hello",
+        "again"
+      ],
+      "score": 7,
+      "last_analyzed": "2025-07-05T06:32:42.261168+00:00",
+      "views": 0,
+      "engagement_rate": 0,
+      "ctr": 0,
+      "impressions": 0,
+      "tags": [],
+      "suggested_keywords": [
+        "youtube tutorial",
+        "best youtube",
+        "youtube tips",
+        "hello tutorial",
+        "best hello"
+      ]
+    }
   },
   {
     "id": "1751618251.918499",
@@ -41,6 +106,28 @@
     "likes": 0,
     "liked": false,
     "saved": false,
-    "created_at": "2025-07-04T14:07:31.918499"
+    "created_at": "2025-07-04T14:07:31.918499",
+    "seo_data": {
+      "keywords": [
+        "github",
+        "link",
+        "generation",
+        "hello"
+      ],
+      "score": 21,
+      "last_analyzed": "2025-07-05T06:32:42.261168+00:00",
+      "views": 0,
+      "engagement_rate": 0,
+      "ctr": 0,
+      "impressions": 0,
+      "tags": [],
+      "suggested_keywords": [
+        "github tutorial",
+        "best github",
+        "github tips",
+        "link tutorial",
+        "best link"
+      ]
+    }
   }
 ]
