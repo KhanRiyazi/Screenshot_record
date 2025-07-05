@@ -129,5 +129,39 @@
         "best link"
       ]
     }
+  },
+  {
+    "id": "1751700543.951153",
+    "title": "Google Ad ",
+    "url": "https://ads.google.com/aw/billing/summary?ocid=7316636150&euid=780063771&__u=6026296579&uscid=7316636150&__c=6149841350&authuser=0&subid=in-en-ha-awa-bk-c-c05%21o3-ahpm-0000000188-0000000000%7C-ahpm-0000000179-0000000000~Cj0KCQjwmqPDBhCAARIsADorxIaXtFOjVCTakT8k5PYCIz0e5k718vVDBSNMq02oxpL3brpPlp7JXdIaApfkEALw_wcB~181173515442~aud-2277743709984%3Akwd-128965020~22563810230~752507407416",
+    "image": "/static/uploads/1751700543.949159_google_ad.jpg",
+    "notes": "Google ad policy",
+    "likes": 0,
+    "liked": false,
+    "saved": false,
+    "created_at": "2025-07-05T07:29:03.951153+00:00",
+    "seo_data": {
+      "keywords": [
+        "google",
+        "ad",
+        "google",
+        "ad",
+        "policy"
+      ],
+      "score": 19,
+      "last_analyzed": "2025-07-05T07:29:03.951153+00:00",
+      "views": 0,
+      "engagement_rate": 0,
+      "ctr": 0,
+      "impressions": 0,
+      "tags": [],
+      "suggested_keywords": [
+        "google tutorial",
+        "best google",
+        "google tips",
+        "ad tutorial",
+        "best ad"
+      ]
+    }
   }
 ]
